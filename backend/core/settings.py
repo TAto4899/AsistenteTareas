@@ -38,11 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'tareas',
 
 ]
 
 MIDDLEWARE = [
+    # 1. El guardia de CORS va primero
+    'corsheaders.middleware.CorsMiddleware', 
+
+    # 2. El resto de los guardias de Django
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -123,3 +128,67 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Configuración de REST Framework ---
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',  # 100 peticiones por hora para usuarios no autenticados
+        'user': '1000/hour'  # 1000 peticiones por hora para usuarios autenticados
+    },
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+}
+
+
+# --- Configuración de CORS ---
+
+# Lista de orígenes confiables para hacer peticiones
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # <-- CAMBIA ESTO si tu puerto de React es otro
+    "http://127.0.0.1:5173", # (Es bueno añadir ambos por si acaso)
+]
+
+
+
+# Si quieres que la API también funcione con cookies (para el login)
+CORS_ALLOW_CREDENTIALS = True
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8001",
+    "http://127.0.0.1:8001",
+]
+
+#NUEVA CONFIGURANCION DE COOKIES!!--
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Configurar el dominio de las cookies para que funcione con localhost
+SESSION_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = None
+
+#lE DICE A DJANGO QUE ESTA BIEN ENVIAR ESTAS COOKIES---
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# Asegurar que el CSRF token se envíe en una cookie
+CSRF_COOKIE_HTTPONLY = False  # Permite que JavaScript lea el token
+
+# Path de las cookies
+CSRF_COOKIE_PATH = '/'
+SESSION_COOKIE_PATH = '/'
