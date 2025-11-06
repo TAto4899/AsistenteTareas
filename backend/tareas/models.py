@@ -47,6 +47,10 @@ class Tarea(models.Model):
     hora_vencimiento = models.TimeField(null=True, blank=True)
     
     orden = models.IntegerField(default=0, help_text='Orden personalizado del usuario')
+    
+    # Token para compartir (único por tarea)
+    share_token = models.CharField(max_length=64, blank=True, null=True, unique=True, db_index=True)
+    is_public = models.BooleanField(default=False, help_text='Tarea visible públicamente')
 
     creada_en = models.DateTimeField(auto_now_add=True)
     
@@ -81,6 +85,14 @@ class Tarea(models.Model):
             return None
         hoy = timezone.now().date()
         return (self.fecha_vencimiento - hoy).days
+
+    def generar_token_compartir(self):
+        """Genera un token único para compartir la tarea"""
+        import secrets
+        if not self.share_token:
+            self.share_token = secrets.token_urlsafe(32)
+            self.save(update_fields=['share_token'])
+        return self.share_token
 
     def marcar_completada(self):
         """Marca la tarea como completada"""

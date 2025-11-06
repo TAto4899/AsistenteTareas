@@ -186,6 +186,49 @@ class TareaViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+    # Endpoint para generar link de compartición
+    @action(detail=True, methods=['post'])
+    def compartir(self, request, pk=None):
+        tarea = self.get_object()
+        token = tarea.generar_token_compartir()
+        tarea.is_public = True
+        tarea.save(update_fields=['is_public'])
+        
+        share_url = f"{request.scheme}://{request.get_host()}/compartido/{token}"
+        
+        return Response({
+            'token': token,
+            'share_url': share_url,
+            'detail': 'Tarea compartida exitosamente'
+        })
+
+    # Endpoint para dejar de compartir
+    @action(detail=True, methods=['post'])
+    def dejar_compartir(self, request, pk=None):
+        tarea = self.get_object()
+        tarea.is_public = False
+        tarea.save(update_fields=['is_public'])
+        
+        return Response({
+            'detail': 'Tarea ya no es pública'
+        })
+
+
+# Vista pública para tareas compartidas (sin autenticación)
+class TareaCompartidaView(APIView):
+    permission_classes = []
+    
+    def get(self, request, token):
+        try:
+            tarea = Tarea.objects.get(share_token=token, is_public=True)
+            serializer = TareaSerializer(tarea)
+            return Response(serializer.data)
+        except Tarea.DoesNotExist:
+            return Response(
+                {'error': 'Tarea no encontrada o no es pública'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 # --- Vistas de Autenticación ---
 

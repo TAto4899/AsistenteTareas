@@ -8,6 +8,7 @@ import axios from '../api';
 import TagManager from '../components/TagManager';
 import Notifications from '../components/Notifications';
 import ProductivityCharts from '../components/ProductivityCharts';
+import InstallPWA from '../components/InstallPWA';
 import {
   DndContext,
   closestCenter,
@@ -1305,6 +1306,9 @@ function HomePage() {
 
       {/* Componente de Notificaciones */}
       <Notifications tasks={tasks} />
+
+      {/* Botón de instalación PWA */}
+      <InstallPWA />
     </div>
   );
 }

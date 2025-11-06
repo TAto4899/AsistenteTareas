@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TareaViewSet,
     EtiquetaViewSet,
+    TareaCompartidaView,
     UserLoginView, 
     UserLogoutView, 
     CurrentUserView, 
@@ -22,6 +23,7 @@ urlpatterns = [
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('register/', UserRegisterView.as_view(), name='register'),
     path('user/', CurrentUserView.as_view(), name='user'),
+    path('compartido/<str:token>/', TareaCompartidaView.as_view(), name='tarea-compartida'),
 ]
 
 urlpatterns += router.urls
