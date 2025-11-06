@@ -11,6 +11,7 @@ import ProductivityCharts from '../components/ProductivityCharts';
 import InstallPWA from '../components/InstallPWA';
 import ShareTaskModal from '../components/ShareTaskModal';
 import SubtasksList from '../components/SubtasksList';
+import ThemeSelector from '../components/ThemeSelector';
 import {
   DndContext,
   closestCenter,
@@ -90,6 +91,9 @@ function HomePage() {
   // Estado para modal de compartir
   const [shareTask, setShareTask] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Estado para selector de temas
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
 
   // Debounce para búsqueda (espera 300ms después de que el usuario deje de escribir)
   useEffect(() => {
@@ -512,6 +516,26 @@ function HomePage() {
             title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
           >
             {darkMode ? '☀️ Claro' : '🌙 Oscuro'}
+          </button>
+
+          {/* Botón Selector de Temas */}
+          <button 
+            onClick={() => setShowThemeSelector(true)}
+            style={{ 
+              padding: '8px 16px', 
+              cursor: 'pointer',
+              backgroundColor: 'var(--primary-color)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontWeight: '500'
+            }}
+            title="Cambiar tema de colores"
+          >
+            🎨 Temas
           </button>
           
           <button 
@@ -1342,6 +1366,12 @@ function HomePage() {
           setShowShareModal(false);
           setShareTask(null);
         }}
+      />
+
+      {/* Modal Selector de Temas */}
+      <ThemeSelector
+        isOpen={showThemeSelector}
+        onClose={() => setShowThemeSelector(false)}
       />
 
       {/* Componente de Notificaciones */}
