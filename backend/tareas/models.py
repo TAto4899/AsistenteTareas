@@ -45,6 +45,8 @@ class Tarea(models.Model):
     fecha_vencimiento = models.DateField(null=True, blank=True)
     
     hora_vencimiento = models.TimeField(null=True, blank=True)
+    
+    orden = models.IntegerField(default=0, help_text='Orden personalizado del usuario')
 
     creada_en = models.DateTimeField(auto_now_add=True)
     
@@ -53,11 +55,11 @@ class Tarea(models.Model):
     etiquetas = models.ManyToManyField(Etiqueta, blank=True, related_name='tareas')
 
     class Meta:
-        ordering = ['-creada_en']
+        ordering = ['orden', '-creada_en']
         verbose_name = 'Tarea'
         verbose_name_plural = 'Tareas'
         indexes = [
-            models.Index(fields=['usuario', '-creada_en']),
+            models.Index(fields=['usuario', 'orden', '-creada_en']),
             models.Index(fields=['usuario', 'completada']),
             models.Index(fields=['usuario', 'prioridad']),
         ]

@@ -154,6 +154,38 @@ class TareaViewSet(viewsets.ModelViewSet):
             'count': count
         })
 
+    # Endpoint para actualizar el orden de las tareas (Drag & Drop)
+    @action(detail=False, methods=['post'])
+    def reordenar(self, request):
+        ordenes = request.data.get('ordenes', [])
+        if not ordenes:
+            return Response(
+                {'error': 'Se requiere una lista de órdenes'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # ordenes debe ser una lista de objetos: [{'id': 1, 'orden': 0}, {'id': 2, 'orden': 1}, ...]
+        try:
+            for item in ordenes:
+                tarea = Tarea.objects.get(id=item['id'], usuario=request.user)
+                tarea.orden = item['orden']
+                tarea.save(update_fields=['orden'])
+            
+            return Response({
+                'detail': 'Orden actualizado correctamente',
+                'count': len(ordenes)
+            })
+        except Tarea.DoesNotExist:
+            return Response(
+                {'error': 'Una o más tareas no existen'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 # --- Vistas de Autenticación ---
 

@@ -8,6 +8,46 @@ import axios from '../api';
 import TagManager from '../components/TagManager';
 import Notifications from '../components/Notifications';
 import ProductivityCharts from '../components/ProductivityCharts';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Componente para cada tarea arrastrable
+function SortableTask({ task, children }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
 
 function HomePage() {
   const { user, logout } = useAuth();
@@ -381,6 +421,50 @@ function HomePage() {
   };
 
   const filteredTasks = getFilteredTasks();
+
+  // Configuración de sensores para Drag & Drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Manejar el final del drag
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = filteredTasks.findIndex(task => task.id === active.id);
+      const newIndex = filteredTasks.findIndex(task => task.id === over.id);
+
+      const reorderedTasks = arrayMove(filteredTasks, oldIndex, newIndex);
+      
+      // Actualizar el estado local inmediatamente para una UI fluida
+      const allTasks = tasks.map(task => {
+        const reordered = reorderedTasks.find(t => t.id === task.id);
+        return reordered || task;
+      });
+      setTasks(allTasks);
+
+      // Crear el payload con los nuevos órdenes
+      const ordenes = reorderedTasks.map((task, index) => ({
+        id: task.id,
+        orden: index
+      }));
+
+      // Enviar al backend
+      try {
+        await axios.post('/api/tareas/reordenar/', { ordenes });
+        showSuccess('Orden actualizado');
+      } catch (error) {
+        console.error('Error al reordenar:', error);
+        setError('Error al guardar el orden');
+        // Revertir en caso de error
+        fetchTasks();
+      }
+    }
+  };
 
   // Usar estadísticas del backend o calcular localmente
   const stats = {
@@ -966,9 +1050,14 @@ function HomePage() {
 
       {/* Lista de Tareas */}
       <div>
-        <h3 style={{ marginBottom: '15px' }}>
+        <h3 style={{ marginBottom: '15px', color: 'var(--text-primary)' }}>
           {filteredTasks.length} {filteredTasks.length === 1 ? 'tarea' : 'tareas'}
           {searchTerm && ` con "${searchTerm}"`}
+          {sortBy === 'created' && !searchTerm && !filterStatus && !filterPriority && !filterTag && (
+            <span style={{ fontSize: '14px', color: 'var(--text-secondary)', marginLeft: '10px' }}>
+              🔀 Arrastra para reordenar
+            </span>
+          )}
         </h3>
         
         {loadingTasks ? (
@@ -991,9 +1080,18 @@ function HomePage() {
             </div>
           </div>
         ) : (
-          <div>
-            {filteredTasks.map((task) => (
-              <div 
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={filteredTasks.map(task => task.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {filteredTasks.map((task) => (
+                <SortableTask key={task.id} task={task}>
+                  <div 
                 key={task.id}
                 style={{
                   backgroundColor: task.completada ? '#e8f5e9' : 'white',
@@ -1191,8 +1289,10 @@ function HomePage() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+                </SortableTask>
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
