@@ -10,6 +10,7 @@ import Notifications from '../components/Notifications';
 import ProductivityCharts from '../components/ProductivityCharts';
 import InstallPWA from '../components/InstallPWA';
 import ShareTaskModal from '../components/ShareTaskModal';
+import SubtasksList from '../components/SubtasksList';
 import {
   DndContext,
   closestCenter,
@@ -1243,6 +1244,9 @@ function HomePage() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Subtareas/Checklist */}
+                  <SubtasksList task={task} onUpdate={fetchTasks} />
                   
                   {/* Botones de acción */}
                   <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexDirection: 'column' }}>

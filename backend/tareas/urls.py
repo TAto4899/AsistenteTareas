@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TareaViewSet,
     EtiquetaViewSet,
+    SubtareaViewSet,
     TareaCompartidaView,
     UserLoginView, 
     UserLogoutView, 
@@ -16,6 +17,7 @@ from .views import (
 router = DefaultRouter()
 router.register(r'tareas', TareaViewSet, basename='tareas')
 router.register(r'etiquetas', EtiquetaViewSet, basename='etiquetas')
+router.register(r'subtareas', SubtareaViewSet, basename='subtareas')
 
 urlpatterns = [
     path('csrf/', GetCSRFToken.as_view(), name='csrf'),

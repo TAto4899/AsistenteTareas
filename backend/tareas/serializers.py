@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import Tarea, Etiqueta
+from .models import Tarea, Etiqueta, Subtarea
 
 class EtiquetaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,11 +22,19 @@ class EtiquetaSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class SubtareaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subtarea
+        fields = ['id', 'texto', 'completada', 'orden', 'creada_en']
+        read_only_fields = ['creada_en']
+
+
 class TareaSerializer(serializers.ModelSerializer):
     usuario = serializers.ReadOnlyField(source='usuario.username')
     dias_restantes = serializers.SerializerMethodField()
     esta_vencida = serializers.SerializerMethodField()
     etiquetas = EtiquetaSerializer(many=True, read_only=True)
+    subtareas = SubtareaSerializer(many=True, read_only=True)
     etiquetas_ids = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
@@ -43,14 +51,19 @@ class TareaSerializer(serializers.ModelSerializer):
             'prioridad',
             'fecha_vencimiento',
             'hora_vencimiento',
+            'orden',
+            'share_token',
+            'is_public',
             'creada_en',
+            'actualizada_en',
             'usuario',
             'dias_restantes',
             'esta_vencida',
             'etiquetas',
             'etiquetas_ids',
+            'subtareas',
         ]
-        read_only_fields = ['creada_en']
+        read_only_fields = ['creada_en', 'actualizada_en', 'share_token']
 
     def get_dias_restantes(self, obj):
         """Calcula los días restantes hasta la fecha de vencimiento"""

@@ -16,8 +16,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import get_token
 
-from .models import Tarea, Etiqueta
-from .serializers import TareaSerializer, UserRegisterSerializer, EtiquetaSerializer
+from .models import Tarea, Etiqueta, Subtarea
+from .serializers import TareaSerializer, UserRegisterSerializer, EtiquetaSerializer, SubtareaSerializer
 
 # --- Vista de Etiquetas ---
 class EtiquetaViewSet(viewsets.ModelViewSet):
@@ -29,6 +29,39 @@ class EtiquetaViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
+
+
+# --- Vista de Subtareas ---
+class SubtareaViewSet(viewsets.ModelViewSet):
+    serializer_class = SubtareaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Filtrar subtareas solo de tareas del usuario autenticado
+        return Subtarea.objects.filter(tarea__usuario=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        tarea_id = request.data.get('tarea_id')
+        if not tarea_id:
+            return Response(
+                {'error': 'tarea_id es requerido'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verificar que la tarea pertenezca al usuario
+        try:
+            tarea = Tarea.objects.get(id=tarea_id, usuario=request.user)
+        except Tarea.DoesNotExist:
+            return Response(
+                {'error': 'Tarea no encontrada'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(tarea=tarea)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # --- Vista de Tareas con filtros y búsqueda ---

@@ -103,3 +103,20 @@ class Tarea(models.Model):
         """Marca la tarea como pendiente"""
         self.completada = False
         self.save()
+
+
+class Subtarea(models.Model):
+    """Modelo para subtareas/checklist dentro de una tarea"""
+    tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE, related_name='subtareas')
+    texto = models.CharField(max_length=200)
+    completada = models.BooleanField(default=False)
+    orden = models.IntegerField(default=0)
+    creada_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['orden', 'creada_en']
+        verbose_name = 'Subtarea'
+        verbose_name_plural = 'Subtareas'
+
+    def __str__(self):
+        return f"{self.texto} ({'✓' if self.completada else '○'})"

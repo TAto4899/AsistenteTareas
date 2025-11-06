@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tarea, Etiqueta
+from .models import Tarea, Etiqueta, Subtarea
 
 @admin.register(Etiqueta)
 class EtiquetaAdmin(admin.ModelAdmin):
@@ -20,6 +20,13 @@ class EtiquetaAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class SubtareaInline(admin.TabularInline):
+    model = Subtarea
+    extra = 1
+    fields = ['texto', 'completada', 'orden']
+    ordering = ['orden', 'creada_en']
+
+
 @admin.register(Tarea)
 class TareaAdmin(admin.ModelAdmin):
     list_display = ['titulo', 'usuario', 'prioridad', 'completada', 'fecha_vencimiento', 'hora_vencimiento', 'esta_vencida', 'creada_en']
@@ -28,6 +35,7 @@ class TareaAdmin(admin.ModelAdmin):
     list_editable = ['completada', 'prioridad']
     readonly_fields = ['creada_en', 'actualizada_en', 'esta_vencida', 'dias_restantes']
     filter_horizontal = ['etiquetas']
+    inlines = [SubtareaInline]
     
     fieldsets = (
         ('Información Básica', {
