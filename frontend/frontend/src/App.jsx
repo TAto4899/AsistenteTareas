@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import SharedTaskPage from './pages/SharedTaskPage';
 
 function App() {
   const { user, loading } = useAuth();
@@ -43,6 +44,12 @@ function App() {
         <Route
           path="/"
           element={user ? <HomePage /> : <Navigate to="/login" />}
+        />
+
+        {/* Ruta para tarea compartida (pública) */}
+        <Route
+          path="/compartido/:token"
+          element={<SharedTaskPage />}
         />
       </Routes>
     </BrowserRouter>

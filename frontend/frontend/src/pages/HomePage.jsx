@@ -9,6 +9,7 @@ import TagManager from '../components/TagManager';
 import Notifications from '../components/Notifications';
 import ProductivityCharts from '../components/ProductivityCharts';
 import InstallPWA from '../components/InstallPWA';
+import ShareTaskModal from '../components/ShareTaskModal';
 import {
   DndContext,
   closestCenter,
@@ -84,6 +85,10 @@ function HomePage() {
   // Estados para etiquetas
   const [availableTags, setAvailableTags] = useState([]);
   const [showTagManager, setShowTagManager] = useState(false);
+
+  // Estado para modal de compartir
+  const [shareTask, setShareTask] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Debounce para búsqueda (espera 300ms después de que el usuario deje de escribir)
   useEffect(() => {
@@ -272,6 +277,11 @@ function HomePage() {
       console.error('Error al limpiar tareas:', error);
       setError('Error al limpiar tareas completadas');
     }
+  };
+
+  const handleShare = (task) => {
+    setShareTask(task);
+    setShowShareModal(true);
   };
 
   const handleEdit = (task) => {
@@ -1271,6 +1281,22 @@ function HomePage() {
                         ✏️ Editar
                       </button>
                       <button
+                        onClick={() => handleShare(task)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#9C27B0',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}
+                        title="Compartir tarea"
+                      >
+                        🔗
+                      </button>
+                      <button
                         onClick={() => handleDelete(task.id)}
                         style={{
                           padding: '6px 12px',
@@ -1302,6 +1328,16 @@ function HomePage() {
         isOpen={showTagManager}
         onClose={() => setShowTagManager(false)}
         onTagsUpdated={fetchTags}
+      />
+
+      {/* Modal de Compartir Tarea */}
+      <ShareTaskModal
+        task={shareTask}
+        isOpen={showShareModal}
+        onClose={() => {
+          setShowShareModal(false);
+          setShareTask(null);
+        }}
       />
 
       {/* Componente de Notificaciones */}
