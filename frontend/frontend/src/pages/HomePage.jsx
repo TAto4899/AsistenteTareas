@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../api';
 import TagManager from '../components/TagManager';
 import Notifications from '../components/Notifications';
+import ProductivityCharts from '../components/ProductivityCharts';
 
 function HomePage() {
   const { user, logout } = useAuth();
@@ -33,6 +34,7 @@ function HomePage() {
 
   // Estados para filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // all, pending, completed
   const [filterPriority, setFilterPriority] = useState('all'); // all, B, M, A
   const [filterTag, setFilterTag] = useState('all'); // all, tag_id
@@ -41,6 +43,15 @@ function HomePage() {
   // Estados para etiquetas
   const [availableTags, setAvailableTags] = useState([]);
   const [showTagManager, setShowTagManager] = useState(false);
+
+  // Debounce para búsqueda (espera 300ms después de que el usuario deje de escribir)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Cargar tareas y estadísticas al inicio
   useEffect(() => {
@@ -243,6 +254,59 @@ function HomePage() {
     setError('');
   };
 
+  // Función para exportar tareas a CSV
+  const exportToCSV = () => {
+    const tasksToExport = getFilteredTasks();
+    
+    if (tasksToExport.length === 0) {
+      setError('No hay tareas para exportar');
+      return;
+    }
+
+    // Encabezados del CSV
+    const headers = ['Título', 'Descripción', 'Prioridad', 'Estado', 'Fecha Vencimiento', 'Hora', 'Etiquetas', 'Creada', 'Vencida'];
+    
+    // Convertir tareas a filas CSV
+    const rows = tasksToExport.map(task => {
+      const etiquetas = task.etiquetas?.map(tag => tag.nombre).join('; ') || '';
+      const estado = task.completada ? 'Completada' : 'Pendiente';
+      const prioridad = getPrioridadTexto(task.prioridad);
+      const vencida = isOverdue(task) ? 'Sí' : 'No';
+      const fechaCreada = new Date(task.creada_en).toLocaleDateString('es-ES');
+      
+      return [
+        `"${task.titulo}"`,
+        `"${task.descripcion || ''}"`,
+        prioridad,
+        estado,
+        task.fecha_vencimiento || '',
+        task.hora_vencimiento || '',
+        `"${etiquetas}"`,
+        fechaCreada,
+        vencida
+      ].join(',');
+    });
+
+    // Combinar encabezados y filas
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    // Crear el archivo y descargarlo
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `tareas_${fecha}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showSuccess(`${tasksToExport.length} tarea(s) exportadas a CSV`);
+  };
+
   const getPrioridadTexto = (prioridad) => {
     const prioridades = { B: 'Baja', M: 'Media', A: 'Alta' };
     return prioridades[prioridad] || prioridad;
@@ -271,11 +335,11 @@ function HomePage() {
     
     let filtered = [...tasks];
 
-    // Filtrar por búsqueda
-    if (searchTerm) {
+    // Filtrar por búsqueda (con debounce)
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(task =>
-        task.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (task.descripcion && task.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+        task.titulo.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (task.descripcion && task.descripcion.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
       );
     }
 
@@ -478,6 +542,11 @@ function HomePage() {
         </div>
       )}
 
+      {/* Gráficos de Productividad */}
+      {!loadingTasks && tasks.length > 0 && (
+        <ProductivityCharts tasks={tasks} />
+      )}
+
       {/* Botón Nueva Tarea y Limpiar */}
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <button 
@@ -511,6 +580,25 @@ function HomePage() {
             }}
           >
             🗑️ Limpiar Completadas ({stats.completed})
+          </button>
+        )}
+
+        {tasks.length > 0 && (
+          <button 
+            onClick={exportToCSV}
+            style={{ 
+              padding: '12px 24px', 
+              backgroundColor: '#2196F3', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '500'
+            }}
+            title="Exportar tareas actuales a archivo CSV"
+          >
+            📥 Exportar CSV
           </button>
         )}
       </div>
