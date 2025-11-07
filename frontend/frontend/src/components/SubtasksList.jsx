@@ -186,7 +186,8 @@ function SubtasksList({ task, onUpdate }) {
             border: '1px solid #ddd',
             borderRadius: '4px',
             fontSize: '13px',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
+            color: '#333'
           }}
         />
         <button
