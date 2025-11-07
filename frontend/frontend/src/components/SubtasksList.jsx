@@ -1,12 +1,17 @@
 // frontend/src/components/SubtasksList.jsx
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from '../api';
 
 function SubtasksList({ task, onUpdate }) {
   const [subtasks, setSubtasks] = useState(task.subtareas || []);
   const [newSubtask, setNewSubtask] = useState('');
   const [adding, setAdding] = useState(false);
+
+  // Sincronizar subtareas cuando cambie la tarea
+  useEffect(() => {
+    setSubtasks(task.subtareas || []);
+  }, [task.subtareas]);
 
   const handleAddSubtask = async (e) => {
     e.preventDefault();
@@ -28,8 +33,9 @@ function SubtasksList({ task, onUpdate }) {
       console.error('Response:', error.response?.data);
       const errorMsg = error.response?.data?.error || 'Error al crear subtarea';
       alert(errorMsg);
+    } finally {
+      setAdding(false);
     }
-    setAdding(false);
   };
 
   const handleToggleSubtask = async (subtask) => {

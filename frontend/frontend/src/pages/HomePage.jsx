@@ -232,10 +232,14 @@ function HomePage() {
   };
 
   const handleToggleComplete = async (task) => {
+    console.log('Toggle completar - Task:', task.id, 'Estado actual:', task.completada);
+    
     try {
-      await axios.patch(`/api/tareas/${task.id}/`, {
+      const response = await axios.patch(`/api/tareas/${task.id}/`, {
         completada: !task.completada,
       });
+      
+      console.log('Respuesta exitosa:', response.data);
       
       // Actualizar inmediatamente el estado local para mejor UX
       setTasks(prevTasks => 
