@@ -191,7 +191,14 @@ function HomePage() {
         showSuccess('Tarea creada correctamente');
       }
       
-      setFormData({ titulo: '', descripcion: '', prioridad: 'M', fecha_vencimiento: '' });
+      setFormData({ 
+        titulo: '', 
+        descripcion: '', 
+        prioridad: 'M', 
+        fecha_vencimiento: '', 
+        hora_vencimiento: '', 
+        etiquetas: [] 
+      });
       setShowForm(false);
       setEditingId(null);
       fetchTasks();

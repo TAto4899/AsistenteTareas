@@ -25,7 +25,9 @@ function SubtasksList({ task, onUpdate }) {
       onUpdate && onUpdate();
     } catch (error) {
       console.error('Error al crear subtarea:', error);
-      alert('Error al crear subtarea');
+      console.error('Response:', error.response?.data);
+      const errorMsg = error.response?.data?.error || 'Error al crear subtarea';
+      alert(errorMsg);
     }
     setAdding(false);
   };
@@ -42,6 +44,8 @@ function SubtasksList({ task, onUpdate }) {
       onUpdate && onUpdate();
     } catch (error) {
       console.error('Error al actualizar subtarea:', error);
+      console.error('Response:', error.response?.data);
+      alert('Error al actualizar subtarea');
     }
   };
 
