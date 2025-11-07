@@ -68,7 +68,6 @@ function SubtasksList({ task, onUpdate }) {
 
   return (
     <div style={{ marginTop: '15px' }}>
-      {/* Header con progreso */}
       {totalCount > 0 && (
         <div style={{ marginBottom: '10px' }}>
           <div style={{
@@ -101,7 +100,6 @@ function SubtasksList({ task, onUpdate }) {
         </div>
       )}
 
-      {/* Lista de subtareas */}
       {subtasks.length > 0 && (
         <div style={{ marginBottom: '10px' }}>
           {subtasks.map(subtask => (
@@ -165,7 +163,6 @@ function SubtasksList({ task, onUpdate }) {
         </div>
       )}
 
-      {/* Form para agregar nueva subtarea */}
       <form onSubmit={handleAddSubtask} style={{
         display: 'flex',
         gap: '6px',
