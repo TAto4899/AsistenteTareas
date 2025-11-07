@@ -2,8 +2,8 @@
 
 import axios from 'axios';
 
-// 1. Apunta a la URL base de tu backend de Django
-axios.defaults.baseURL = 'http://localhost:8001';
+// 1. Apunta a la URL base de tu backend de Django - usa variable de entorno
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 // 2. Le dice a axios que envíe y reciba cookies
 axios.defaults.withCredentials = true;
