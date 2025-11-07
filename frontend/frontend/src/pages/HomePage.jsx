@@ -506,7 +506,20 @@ function HomePage() {
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: 'var(--bg-secondary)',
+      display: 'flex',
+      justifyContent: 'center',
+      paddingTop: '20px',
+      paddingBottom: '20px'
+    }}>
+      <div style={{ 
+        maxWidth: '1200px', 
+        width: '100%',
+        margin: '0 auto', 
+        padding: '0 20px'
+      }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <h1 style={{ margin: 0, color: 'var(--text-primary)' }}>📝 Mis Tareas</h1>
@@ -1409,6 +1422,7 @@ function HomePage() {
 
       {/* Botón de instalación PWA */}
       <InstallPWA />
+      </div>
     </div>
   );
 }
