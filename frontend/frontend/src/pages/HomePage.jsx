@@ -1,6 +1,6 @@
 // frontend/src/pages/HomePage.jsx
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
@@ -46,9 +46,12 @@ function SortableTask({ task, children }) {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Pasar los listeners a los children a través de cloneElement
+  const childrenWithListeners = React.cloneElement(children, { dragListeners: listeners });
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {childrenWithListeners}
     </div>
   );
 }
@@ -1147,8 +1150,7 @@ function HomePage() {
                   padding: '15px',
                   marginBottom: '12px',
                   position: 'relative',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  cursor: 'pointer'
+                  transition: 'transform 0.2s, box-shadow 0.2s'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -1160,6 +1162,23 @@ function HomePage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  {/* Handle para drag & drop */}
+                  <div 
+                    {...(task.dragListeners || {})}
+                    style={{ 
+                      cursor: 'grab',
+                      padding: '4px',
+                      color: '#999',
+                      fontSize: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      userSelect: 'none'
+                    }}
+                    title="Arrastra para reordenar"
+                  >
+                    ⋮⋮
+                  </div>
+
                   {/* Checkbox */}
                   <input
                     type="checkbox"
