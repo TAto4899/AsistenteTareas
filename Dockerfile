@@ -20,7 +20,5 @@ COPY backend/ .
 # Exponer puerto
 EXPOSE 8000
 
-# Comando de inicio
-CMD python manage.py migrate --no-input && \
-    python manage.py collectstatic --no-input && \
-    gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+# Script de inicio
+CMD ["sh", "-c", "python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"]
