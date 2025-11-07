@@ -17,11 +17,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el proyecto
 COPY backend/ .
 
-# Recolectar archivos estáticos
-RUN python manage.py collectstatic --no-input
-
 # Exponer puerto
 EXPOSE 8000
 
 # Comando de inicio
-CMD gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+CMD python manage.py migrate --no-input && \
+    python manage.py collectstatic --no-input && \
+    gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
