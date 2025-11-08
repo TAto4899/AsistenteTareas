@@ -46,3 +46,6 @@ htmlcov/
 # Misc
 *.bak
 *.tmp
+
+# Notas locales
+MEJORAS.md
