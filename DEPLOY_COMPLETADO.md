@@ -71,13 +71,13 @@ Usar un servicio como **UptimeRobot** o **Cron-job.org** para hacer ping cada 10
 
 ### Variables de Entorno (Render):
 ```env
-SECRET_KEY=7%=-d4l_$h+(j9ie#%r*n9yfh6y@r^%w(kegjxie7r_j=uu-f6
+SECRET_KEY=tu-secret-key-super-segura-aqui
 DEBUG=False
 ALLOWED_HOSTS=.onrender.com,asistentetareas.onrender.com
-DATABASE_URL=postgresql://asistente_tareas_user:***@dpg-***-a/asistente_tareas
+DATABASE_URL=postgresql://user:password@host/database
 PYTHON_VERSION=3.12.0
-CORS_ALLOWED_ORIGINS=https://asistente-tareas-eae7.vercel.app,http://localhost:5173
-CSRF_TRUSTED_ORIGINS=https://asistentetareas.onrender.com,https://asistente-tareas-eae7.vercel.app
+CORS_ALLOWED_ORIGINS=https://tu-frontend.vercel.app,http://localhost:5173
+CSRF_TRUSTED_ORIGINS=https://tu-backend.onrender.com,https://tu-frontend.vercel.app
 ```
 
 ### Variables de Entorno (Vercel):
