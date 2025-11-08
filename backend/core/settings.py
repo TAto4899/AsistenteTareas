@@ -190,15 +190,16 @@ CSRF_TRUSTED_ORIGINS = config(
 
 #NUEVA CONFIGURANCION DE COOKIES!!--
 
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SAMESITE = 'Lax'
+# En producción (dominios diferentes) usar 'None', en desarrollo 'Lax'
+SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'
+CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'
 
 # Configurar el dominio de las cookies para que funcione con localhost
 SESSION_COOKIE_DOMAIN = None
 CSRF_COOKIE_DOMAIN = None
 
 #lE DICE A DJANGO QUE ESTA BIEN ENVIAR ESTAS COOKIES---
-# En producción usar HTTPS
+# En producción DEBE usar HTTPS con SameSite=None
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
